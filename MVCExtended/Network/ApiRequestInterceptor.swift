@@ -84,6 +84,8 @@ class ApiRequestInterceptor: RequestInterceptor {
     }
     
     func makeRequest(isRefreshToken: Bool, completion: @escaping (RetryResult) -> Void) {
+        
+      /*
         let refreshTokenParams = [
             "accessToken": self.accessToken,
             "password":self.refreshToken]
@@ -118,6 +120,8 @@ class ApiRequestInterceptor: RequestInterceptor {
                 }
                 
             }
+        
+        */
     }
 }
 

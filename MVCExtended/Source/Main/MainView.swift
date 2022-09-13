@@ -10,9 +10,9 @@ protocol MainView: ObservableLifecycleView {
 
 protocol MainViewDataSource: AnyObject {
     func isLoggedIn(for: MainView) -> Bool
+    
 }
 
 protocol MainViewDelegate: AnyObject {
-    
-    
+    func didSubmit(in: MainView)
 }

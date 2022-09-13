@@ -13,7 +13,6 @@ class BaseView: UIView, MVCView, ObservableLifecycleView {
     
     private var canAnimate = false
     private var animateLayoutChanges = false
-    private var viewLayerStatesBeforeAnimation: [CALayer : LayerState] = [:]
     private var nonAnimatingViews: [UIView] = []
     private var parentsOfNonAnimatingViews: [UIView] = []
     
@@ -77,7 +76,7 @@ class BaseView: UIView, MVCView, ObservableLifecycleView {
     }
     
     open func didDisappear() {
-        viewLayerStatesBeforeAnimation = [:]
+        
     }
     
     open func didUnload() {
@@ -93,20 +92,12 @@ class BaseView: UIView, MVCView, ObservableLifecycleView {
     override func layoutSubviews() {
         super.layoutSubviews()
         updateUI()
-        animateLayoutChangesIfNeeded()
     }
     
     
     /*----------------------------------------- Methods ------------------------------------------*/
     
-    
-    func beginDelayedTransitions(excluding nonAnimatingViews: [UIView] = [], excludingChildrenOf parentsOfNonAnimatingViews: [UIView] = []) {
-        guard canAnimate else { return }
-        animateLayoutChanges = true
-        viewLayerStatesBeforeAnimation = recordState()
-        self.nonAnimatingViews = nonAnimatingViews
-        self.parentsOfNonAnimatingViews = parentsOfNonAnimatingViews
-    }
+
     
     func notifyDataChanged() {
         runOnUIThread {
@@ -118,12 +109,6 @@ class BaseView: UIView, MVCView, ObservableLifecycleView {
         setNeedsLayout()
     }
     
-    func animateLayoutChangesIfNeeded() {
-        guard canAnimate && animateLayoutChanges else { return }
-        animateToCurrentLayout(from: viewLayerStatesBeforeAnimation, excluding: nonAnimatingViews, excludingChildrenOf: parentsOfNonAnimatingViews)
-        animateLayoutChanges = false
-        viewLayerStatesBeforeAnimation = [:]
-    }
     
     open func updateUI() {
         
@@ -147,6 +132,17 @@ extension UIView {
         
         NotificationCenter.default.post(name: .registerControllerPreparationHandler, object: self, userInfo: params)
         addSubview(view)
+    }
+    
+    var parentViewController: UIViewController? {
+        weak var parentResponder: UIResponder? = self
+        while parentResponder != nil {
+            parentResponder = parentResponder!.next
+            if let viewController = parentResponder as? UIViewController {
+                return viewController
+            }
+        }
+        return nil
     }
     
 }

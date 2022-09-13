@@ -7,10 +7,9 @@ target 'MVCExtended' do
 
   # Pods for MVCExtended
 
-	pod 'RxAlamofire'
+	  pod 'RxAlamofire'
   	pod 'KeychainAccess'
   	pod 'RxSwift'
-	pod 'SwifterSwift'
 
   target 'MVCExtendedTests' do
     inherit! :search_paths

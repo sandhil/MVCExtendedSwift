@@ -11,7 +11,6 @@ class BaseTabBarController: UITabBarController, MVCView, ObservableLifecycleView
     
     private var canAnimate = false
     private var animateLayoutChanges = false
-    private var viewLayerStatesBeforeAnimation: [CALayer : LayerState] = [:]
     private var nonAnimatingViews: [UIView] = []
     private var parentsOfNonAnimatingViews: [UIView] = []
     
@@ -60,27 +59,12 @@ class BaseTabBarController: UITabBarController, MVCView, ObservableLifecycleView
         }
     }
     
-    func beginDelayedTransitions(excluding nonAnimatingViews: [UIView] = [], excludingChildrenOf parentsOfNonAnimatingViews: [UIView] = []) {
-        guard canAnimate else { return }
-        animateLayoutChanges = true
-        viewLayerStatesBeforeAnimation = view.recordState()
-        self.nonAnimatingViews = nonAnimatingViews
-        self.parentsOfNonAnimatingViews = parentsOfNonAnimatingViews
-    }
-    
     func setNeedsUpdateUI() {
         view.setNeedsLayout()
     }
     
     override func viewWillLayoutSubviews() {
         updateUI()
-    }
-    
-    func animateFromPreviousLayoutToCurrentLayout() {
-        guard canAnimate && animateLayoutChanges else { return }
-        view.animateToCurrentLayout(from: viewLayerStatesBeforeAnimation, excluding: nonAnimatingViews, excludingChildrenOf: parentsOfNonAnimatingViews)
-        animateLayoutChanges = false
-        viewLayerStatesBeforeAnimation = [:]
     }
     
     open func updateUI() {

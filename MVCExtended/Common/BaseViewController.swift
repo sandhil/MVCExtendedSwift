@@ -13,7 +13,6 @@ class BaseViewController: UIViewController, MVCView, ObservableLifecycleView {
     
     private var canAnimate = false
     private var animateLayoutChanges = false
-    private var viewLayerStatesBeforeAnimation: [CALayer : LayerState] = [:]
     private var nonAnimatingViews: [UIView] = []
     private var parentsOfNonAnimatingViews: [UIView] = []
     
@@ -51,7 +50,6 @@ class BaseViewController: UIViewController, MVCView, ObservableLifecycleView {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         notifyViewDidDisappear()
-        viewLayerStatesBeforeAnimation = [:]
     }
     
     override func viewWillLayoutSubviews() {
@@ -61,7 +59,6 @@ class BaseViewController: UIViewController, MVCView, ObservableLifecycleView {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        animateLayoutChangesIfNeeded()
     }
     
     deinit {
@@ -79,23 +76,8 @@ class BaseViewController: UIViewController, MVCView, ObservableLifecycleView {
         }
     }
     
-    func beginDelayedTransitions(excluding nonAnimatingViews: [UIView] = [], excludingChildrenOf parentsOfNonAnimatingViews: [UIView] = []) {
-        guard canAnimate else { return }
-        animateLayoutChanges = true
-        viewLayerStatesBeforeAnimation = view.recordState()
-        self.nonAnimatingViews = nonAnimatingViews
-        self.parentsOfNonAnimatingViews = parentsOfNonAnimatingViews
-    }
-    
     func setNeedsUpdateUI() {
         view.setNeedsLayout()
-    }
-    
-    func animateLayoutChangesIfNeeded() {
-        guard canAnimate && animateLayoutChanges else { return }
-        view.animateToCurrentLayout(from: viewLayerStatesBeforeAnimation, excluding: nonAnimatingViews, excludingChildrenOf: parentsOfNonAnimatingViews)
-        animateLayoutChanges = false
-        viewLayerStatesBeforeAnimation = [:]
     }
     
     open func updateUI() {
