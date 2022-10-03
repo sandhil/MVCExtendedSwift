@@ -22,9 +22,10 @@ class MainController: ViewLifecycleObserver, MainViewDataSource, MainViewDelegat
     let backendClient: BackendClient
     let sessionManager: SessionManager
     
-    init(view: MainView, backendClient: BackendClient) {
+    init(view: MainView, backendClient: BackendClient, sessionManager: SessionManager) {
         self.view = view
         self.backendClient = backendClient
+        self.sessionManager = sessionManager
         self.view.dataSource = self
         self.view.delegate = self
         
