@@ -1,9 +1,9 @@
-# MVC Event driven
+# Swift-MVC
 Ready to use template for iOS Swift
 
 ## Getting started
 
-MVCExtended uses an event driven approach to decouple the business logic from UIVIewController. One of the major drawbacks of the MVC design pattern in iOS is controller logic is tightly coupled with view. Hence it is hard to write unit tests. 
+Swift-MVC uses an event driven approach to decouple the business logic from UIVIewController. One of the major drawbacks of the MVC design pattern in iOS is controller logic is tightly coupled with view. Hence it is hard to write unit tests. 
 
 We eliminate this by decoupling the business logic from UIViewController to a custom Controller class, which is a component in our design pattern which takes care of all the business logic. The UIVIewcontroller(ViewImpl we call it) deals only with the view manipulations. ViewImpl has two dataSource and delegate to receive and send data to the Controller. 
 
