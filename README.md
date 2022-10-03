@@ -11,20 +11,100 @@ Major components of the design patterns are:-
 
 1. Controller
 
-&ensp; Controller does all the business logic to get or set data from the remote or local repositories. It conforms to two protocols data source and delegate which is used to communicate between the controller and the viewImpl(UIViewController). It also observes the view life cycle through a protocol called ObservableLifecycleView. That means we will call backs like viewDidLoad, viewWillAppear etc in our controller class. 
+> Controller does all the business logic to get or set data from the remote or local repositories. It conforms to two protocols data source and delegate which is used to communicate between the controller and the **ViewImpl(UIViewController)**. It also observes the view life cycle through a protocol called **ObservableLifecycleView**. That means we will call backs like **viewDidLoad, viewWillAppear** etc in our controller class. 
+
+```swift
+import Foundation
+
+class MainController: ViewLifecycleObserver, MainViewDataSource, MainViewDelegate {
+    
+    weak var view: MainView!
+    let backendClient: BackendClient
+    let sessionManager: SessionManager
+    
+    init(view: MainView, backendClient: BackendClient) {
+        self.view = view
+        self.backendClient = backendClient
+        self.view.dataSource = self
+        self.view.delegate = self
+        
+        //Observe to the view life cycle events.
+        observe(view)
+        
+    }
+    // UIViewContoller viewDidLoad
+    func viewDidLoad() {
+        
+    }
+    
+    //Delegate method declared in MainViewDelegate
+    func isLoggedIn(for: MainView) -> Bool {
+        sessionManager.isLoggedIn
+    }
+    
+    //Delegate method declared in MainViewDelegate
+    func didSubmit(in: MainView) {
+    }
+}
+```
 
 2. View
 
-&ensp; Every view has two variables which will be a data source and delegate. Both data source and delegates are protocols which declare methods to give data to the ViewImpl and get data or notify the controller according to events. It also has an important method called notifyDataChanged. We can call this method to update the view. You can override updateUI method in the ViewImpl class and whenever we call notifyDataChanged from the controller updateUI will be invoked. 
+> Every view has two variables which will be a data source and delegate. Both data source and delegates are protocols which declare methods to give data to the ViewImpl and get data or notify the controller according to events. It also has an important method called notifyDataChanged. We can call this method to update the view. You can override **updateUI** method in the **ViewImpl** class and whenever we call **notifyDataChanged** from the controller **updateUI** will be invoked.
 
-3. ViewImpl
+```swift
+import Foundation
 
-&ensp; This is the actual UIVIewController where we update the contents of the views or responds to users interactions.
+protocol MainView: ObservableLifecycleView {
+    
+    var dataSource: MainViewDataSource! { get set }
+    var delegate: MainViewDelegate!  { get set }
+    
+    func notifyDataChanged()
+}
+
+protocol MainViewDataSource: AnyObject {
+    func isLoggedIn(for: MainView) -> Bool
+    
+}
+
+protocol MainViewDelegate: AnyObject {
+    func didSubmit(in: MainView)
+}
+```
+
+3. ViewImpl(ViewController)
+
+> This is the actual **UIVIewController** where we update the contents of the views or responds to users interactions.
 
 4. MVCCoordinator 
-&ensp; This is the class we used to set up all the initialization. We initialise all the events in this class. We instantiate our controller class inside the viewDidInit method based on the type of the view. It also acts as a dependency injector class. We can inject the dependencies through the constructor of the controller. MVCCoordinator is initialised in the AppDelegate class.
 
+> This is the class we used to set up all the initialization. We initialise all the events in this class. We instantiate our controller class inside the **viewDidInit** method based on the type of the view. It also acts as a **Dependency Injector** class. We can inject the dependencies through the constructor of the controller. MVCCoordinator is initialised in the AppDelegate class.
 
+```swift
+
+@objc func viewDidInit(notification: Notification) throws {
+        
+        let view = notification.object as! MVCView
+        let controller: Any?
+        
+        switch view {
+        case is MainView:
+            controller = MainController(view: view as! MainView, backendClient: backendClient)
+        default:
+            controller = nil
+            
+        }
+        
+        if controller != nil {
+            viewControllerPairs += ViewControllerPair(
+                view: view,
+                controller: controller
+            )
+        }
+ }
+    
+```
 
 ```
 MIT License
